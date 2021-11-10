@@ -17,8 +17,15 @@ void render(vector<vector<int>>board) {
     int max_x = board[0].size();
     for (int i = 0; i < max_y; i++) { 
         if (i == 0) {
-            cout << "  123" << endl;
-            cout << "  ---" << endl;
+            cout << "  ";
+            for (int a = 1; a <= max_x; a++) {
+                cout << a;
+            }
+            cout << endl << "  ";
+            for (int b = 1; b <= max_x; b++) {
+                cout << "-";
+            }
+            cout << endl;
         }
         for (int j = 0; j < max_x; j++) {
             if (j == 0) {
@@ -41,7 +48,11 @@ void render(vector<vector<int>>board) {
         
         cout << endl;
         if (i == max_y - 1) {
-            cout << "  ---" << endl;
+            cout << "  ";
+            for (int c = 1; c <= max_x; c++) {
+                cout << "-";
+            }
+            cout << endl;
         }
 }
 }

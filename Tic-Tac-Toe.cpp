@@ -8,17 +8,19 @@
 #include <algorithm>
 using namespace std;
 
-vector<vector<int>> new_board() {
-    vector<vector<int>> empty(3, vector<int>(3, 0)); // extensible?
+vector<vector<int>> new_board(int size) {
+    vector<vector<int>> empty(size, vector<int>(size, 0)); // 
     return empty;
 };
 void render(vector<vector<int>>board) {
-    for (int i = 0; i < 3; i++) { // todo make it extensible
+    int max_y = board.size();
+    int max_x = board[0].size();
+    for (int i = 0; i < max_y; i++) { 
         if (i == 0) {
             cout << "  123" << endl;
             cout << "  ---" << endl;
         }
-        for (int j = 0; j < 3; j++) {
+        for (int j = 0; j < max_x; j++) {
             if (j == 0) {
                 cout << i+1 <<"|";
             }
@@ -31,42 +33,47 @@ void render(vector<vector<int>>board) {
             else if (board[i][j] == 2) {
                 cout << "O";
             }
-            if (j == 2) {
+            if (j == max_x - 1) {
                 cout << "|";
             }
        
         }
         
         cout << endl;
-        if (i == 2) {
+        if (i == max_y - 1) {
             cout << "  ---" << endl;
         }
 }
 }
-array<int, 2> getmove(string player) {
-    array<int, 2> playerinput;
-    cout << "It's " << player << "'s move." << endl;
-    cout << "What's your moves x coordinate? ";
-    cin >> playerinput[1];
-    cout << endl << "What's your moves y coordinate? ";
-    cin >> playerinput[0];
-    cout << endl;
-    return playerinput;
-
-}
 bool move_legal(array <int, 2> move, vector<vector<int>> board) {
-    int y = move[0];
-    int x = move[1];
-    if (y > board.size() or x > board[0].size() or y < 1 or x < 1 or board[y-1][x-1] == 1 or board[y-1][x-1] == 2) {
+    int y = move[0]-1;
+    int x = move[1]-1;
+    if (y >= board.size() or x >= board[0].size() or y < 0 or x < 0 or board[y][x] == 1 or board[y][x] == 2) {
         return false;
     }
     else {
         return true;
     }
 }
+array<int, 2> move_KI(vector<vector<int>> board) {
+    array<int, 2> input;
+    int max_y = board.size();
+    int max_x = board[0].size();
+    while (true) {
+        input[0] = rand() % max_y + 1; // random move by KI
+        input[1] = rand() % max_x + 1;
+        if (move_legal(input, board)) { // only use random move if legal
+            break;
+        }
+        else {
+            continue;
+        }
+    }
+    return input;
+}
 vector<vector<int>> make_move(vector<vector<int>> old_board, array <int, 2> move, int player) {
-    int y = move[0];
-    int x = move[1];
+    int y = move[0]-1;
+    int x = move[1]-1;
     vector<vector<int>> new_board = old_board;
     try {
         int playervar = 0;
@@ -79,14 +86,14 @@ vector<vector<int>> make_move(vector<vector<int>> old_board, array <int, 2> move
         else {
             throw invalid_argument("Undefined Playernumber");
         }
-            if (y > old_board.size() or x > old_board[0].size() or y < 1 or x < 1) {
+            if (y >= old_board.size() or x >= old_board[0].size() or y < 0 or x < 0) {
                 throw invalid_argument("Square out of range");
             }
-            else if (old_board[y-1][x-1] == 1 or old_board[y-1][x-1] == 2) {
+            else if (old_board[y][x] == 1 or old_board[y][x] == 2) {
                 throw invalid_argument("Square already taken");
             }
             else {
-                new_board[y-1][x-1] = playervar;
+                new_board[y][x] = playervar;
             }
             return new_board;
     }
@@ -99,6 +106,7 @@ int get_winner(vector<vector<int>> board) {
     int winner = 0;
     int max_x = board[0].size();
     int max_y = board.size();
+    int std_x = board[0].size()-1;
     vector<vector<int>> hlines = board; // all horizontal lines
     vector<vector<int>> vlines(max_y, vector<int>(max_x, 0)); // for vertical lines
     vector<vector<int>> diaglines(2, vector<int>(max_x, 0)); // for diagonal lines
@@ -110,7 +118,7 @@ int get_winner(vector<vector<int>> board) {
     }
     for (int k = 0; k < max_y; k++) {
         diaglines[0][k] = board[k][k];
-        diaglines[1][k] = board[k][max_x - 1 - k];
+        diaglines[1][k] = board[k][std_x - k];
     }
     vector<vector<int>> alllines = hlines;  // for all lines
     alllines.insert(alllines.end(), vlines.begin(), vlines.end());
@@ -118,9 +126,11 @@ int get_winner(vector<vector<int>> board) {
     for (int l = 0; l < alllines.size(); l++) {
         if (all_of(alllines[l].begin(), alllines[l].end(), [&](int i) {return i == 1; })) {
             winner = 1;
+            break;
         }
-        if (all_of(alllines[l].begin(), alllines[l].end(), [&](int i) {return i == 2; })) {
+        else if (all_of(alllines[l].begin(), alllines[l].end(), [&](int i) {return i == 2; })) {
             winner = 2;
+            break;
         }
     }
     return winner;
@@ -143,12 +153,34 @@ bool board_full(vector<vector<int>> board) {
         return false;
     }
 }
+array<int, 2> getmove(string player, vector<vector<int>> board) {
+    array<int, 2> playerinput;
+    if (player == "AI1336") {
+        cout << "It's AI's move." << endl;
+        Sleep(500);
+        playerinput = move_KI(board);
+    }
+    else {
+        cout << "It's " << player << "'s move." << endl;
+        cout << "What's your moves x coordinate? ";
+        cin >> playerinput[1];
+        cout << endl << "What's your moves y coordinate? ";
+        cin >> playerinput[0];
+        cout << endl;
+    }
+    return playerinput;
+
+}
 
 int main()
 {
     try {
     // Build empty Board
-    vector<vector<int>> board1 = new_board();
+    int size;
+    cout << "What should the size of the board be? (whole number) ";
+    cin >> size;
+    getchar(); // get /n
+    vector<vector<int>> board1 = new_board(size);
     vector<vector<int>> board2;
     // Get Player Names
     array<int, 2> move_coords; // used for temp. user move input
@@ -156,12 +188,32 @@ int main()
     string player2;
     string active_player;
     int winner;
+    char choice;
     int playernumber = 1; // Active player
-    cout << "Name of Player1: ";
-    getline(cin, player1);
-    cout << endl << "Name of Player2 : ";
-    getline(cin, player2);
-
+    while (true) {
+        cout << endl << "Do you want to play alone? (y/n) ";
+        cin >> choice;
+        getchar(); // get /n
+        if (choice == 'y') {
+            cout << endl << "What's your name? ";
+            getline(cin, player1);
+            player2 = "AI1336";
+            system("cls");
+            break;
+        }
+        else if (choice == 'n') {
+            cout << endl << "Name of Player1: ";
+            getline(cin, player1);
+            cout << endl << "Name of Player2 : ";
+            getline(cin, player2);
+            system("cls");
+            break;
+        }
+        else {
+            cout << endl << "What?! Please try again!";
+            continue;
+        }
+    }
     
         while (true) //Loop till a winner is declared or full board
         {
@@ -179,7 +231,7 @@ int main()
 
             //Get Move fom Player
             while (true) {
-                move_coords = getmove(active_player);
+                move_coords = getmove(active_player, board1);
                 
 
                 // Check Move

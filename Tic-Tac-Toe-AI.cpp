@@ -119,7 +119,7 @@ int get_winner(vector<vector<int>> board) {
     alllines.insert(alllines.end(), vlines.begin(), vlines.end());
     alllines.insert(alllines.end(), diaglines.begin(), diaglines.end());
     for (int l = 0; l < alllines.size(); l++) {
-        if (all_of(alllines[l].begin(), alllines[l].end(), [&](int i) {return i == 1; })) {
+        if (all_of(alllines[l].begin(), alllines[l].end(), [&](int i) {return i == 1; })) { // find lines with all the same elements
             winner = 1;
             break;
         }
@@ -131,7 +131,7 @@ int get_winner(vector<vector<int>> board) {
     return winner;
 }
 array<int, 2> find_winningmove(vector<vector<int>> board, int player) {
-    array<int, 2> move;
+    array<int, 2> move = { 0 };
     int max_x = board[0].size();
     int max_y = board.size();
     int std_x = board[0].size() - 1;
@@ -242,39 +242,39 @@ int minimax(vector<vector<int>> board, int player, int depth) {
     else if (board_full(board)) {
         return 0;
     }
-    depth++;
+    depth++; // prioritize faster games
     int a = 0;
     for (int i = 0; i < max_y; i++) {
         for (int j = 0; j < max_x; j++) {
             if (board[i][j] == 0) {
-                legal_moves[a][0] = i+1;
+                legal_moves[a][0] = i+1; // safe all possible moves in 2d vector
                 legal_moves[a][1] = j+1;
                 a++;
             }
         }
     }
     for (int k = 0; k < a; k++) {
-        move[0] = legal_moves[k][0];
+        move[0] = legal_moves[k][0]; // move one legalmove after the other into array
         move[1] = legal_moves[k][1];
         new_board = make_move(board, move, player);
-        if (player == 1) {
+        if (player == 1) { // change active player for further calc
             opponent = 2;
         }
         else if (player == 2) {
             opponent = 1;
         }
         score = minimax(new_board, opponent, depth);
-        scores.push_back(score);
+        scores.push_back(score); // add score 
     }
     if (player == 1) {
-        return *max_element(begin(scores), end(scores));
+        return *max_element(begin(scores), end(scores)); //return max score
     }
     else if (player == 2) {
-        return *min_element(begin(scores), end(scores));
+        return *min_element(begin(scores), end(scores)); //return min score
     }
 }
 array<int, 2> move_KI(vector<vector<int>> board) {
-    array<int, 2> input;
+    array<int, 2> input = { 0 };
     int max_y = board.size();
     int max_x = board[0].size();
     array<int, 2> default_move = { max_y + 1, max_x + 1 };
@@ -324,10 +324,10 @@ array<int, 2> minmax_move(vector<vector<int>> board) {
         move[0] = legal_moves[k][0];
         move[1] = legal_moves[k][1];
         new_board = make_move(board, move, 1);
-        score_moves[k] = minimax(new_board, 2, 1);
+        score_moves[k] = minimax(new_board, 2, 1); // same as the minimax function but connect the scores to the moves via index
     }
-    index = max_element(score_moves.begin(), score_moves.end()) - score_moves.begin();
-    best_move[0] = legal_moves[index][0];
+    index = max_element(score_moves.begin(), score_moves.end()) - score_moves.begin(); // find highest score
+    best_move[0] = legal_moves[index][0]; // use move of highest score
     best_move[1] = legal_moves[index][1];
     return best_move;
 }
@@ -355,7 +355,7 @@ int main()
 {
     try {
         // Build empty Board
-        int size;
+        int size = 0;
         cout << "What should the size of the board be? (whole number) ";
         cin >> size;
         getchar(); // get /n
@@ -442,7 +442,7 @@ int main()
             //Check for Winner
             winner = get_winner(board1);
 
-            //Break Loop if Winner != None or Board is full
+            //Break Loop if Winner != None or Board is full with option of replay
             if (winner == 1) {
                 render(board1);
                 cout << player1 << " has won the game!" << endl;

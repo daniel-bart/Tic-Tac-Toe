@@ -1,7 +1,6 @@
 #include <iostream>
-#include<vector>
-#include<Windows.h>
-#include <fstream>
+#include <vector>
+#include <Windows.h>
 #include <string>
 #include <sstream> 
 #include <array>

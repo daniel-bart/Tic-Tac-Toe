@@ -131,7 +131,7 @@ int get_winner(vector<vector<int>> board) {
     return winner;
 }
 array<int, 2> find_winningmove(vector<vector<int>> board, int player) {
-    array<int, 2> move;
+    array<int, 2> move = { 0 };
     int max_x = board[0].size();
     int max_y = board.size();
     int std_x = board[0].size() - 1;
@@ -274,7 +274,7 @@ int minimax(vector<vector<int>> board, int player, int depth) {
     }
 }
 array<int, 2> move_KI(vector<vector<int>> board) {
-    array<int, 2> input;
+    array<int, 2> input = { 0 };
     int max_y = board.size();
     int max_x = board[0].size();
     array<int, 2> default_move = { max_y + 1, max_x + 1 };
@@ -355,7 +355,7 @@ int main()
 {
     try {
         // Build empty Board
-        int size;
+        int size = 0;
         cout << "What should the size of the board be? (whole number) ";
         cin >> size;
         getchar(); // get /n

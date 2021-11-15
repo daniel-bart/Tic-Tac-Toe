@@ -151,6 +151,7 @@ int minimax(vector<vector<int>> board, int player, int depth) {
     int opponent = 0;
     vector<vector<int>> legal_moves (9, vector<int> (2,0));
     vector<vector<int>> next_board;
+    vector<int> scores;
     int max_x = board[0].size();
     int max_y = board.size();
     if (get_winner(board) == 2) {
@@ -171,12 +172,9 @@ int minimax(vector<vector<int>> board, int player, int depth) {
                 legal_moves[a][1] = j+1;
                 a++;
             }
-            else { 
-                continue;
-            }
         }
     }
-    vector<int> scores(a,0);
+    
     for (int k = 0; k < a; k++) {
         next_board = make_move(board, legal_moves[k], player); //get new board for k
         if (player == 1) { // change active player for further calc
@@ -185,7 +183,7 @@ int minimax(vector<vector<int>> board, int player, int depth) {
         else if (player == 2) {
             opponent = 1;
         }
-        scores[k] = minimax(next_board, opponent, depth); //recursion
+        scores.push_back(minimax(next_board, opponent, depth)); //recursion
     }
 
     if (player == 2) {

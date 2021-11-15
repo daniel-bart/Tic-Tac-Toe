@@ -55,7 +55,7 @@ void render(vector<vector<int>>board) {
         }
     }
 }
-bool move_legal(array <int, 2> move, vector<vector<int>> board) {
+bool move_legal(vector <int> move, vector<vector<int>> board) {
     int y = move[0] - 1;
     int x = move[1] - 1;
     if (y >= board.size() or x >= board[0].size() or y < 0 or x < 0 or board[y][x] == 1 or board[y][x] == 2) {
@@ -65,8 +65,7 @@ bool move_legal(array <int, 2> move, vector<vector<int>> board) {
         return true;
     }
 }
-
-vector<vector<int>> make_move(vector<vector<int>> old_board, array <int, 2> move, int player) {
+vector<vector<int>> make_move(vector<vector<int>> old_board, vector <int> move, int player) {
     int y = move[0] - 1;
     int x = move[1] - 1;
     vector<vector<int>> new_board = old_board;
@@ -130,81 +129,6 @@ int get_winner(vector<vector<int>> board) {
     }
     return winner;
 }
-array<int, 2> find_winningmove(vector<vector<int>> board, int player) {
-    array<int, 2> move = { 0 };
-    int max_x = board[0].size();
-    int max_y = board.size();
-    int std_x = board[0].size() - 1;
-    array<int, 2> win_move = { max_y + 1, max_x + 1 };
-    int win = max_x - 1;
-    int a = 0;
-    int b = 0;
-    for (int i = 0; i < max_y; i++) {
-        a = 0;
-        b = 0;
-        for (int j = 0; j < max_x; j++) {
-            if (board[i][j] == player) {
-                a++;
-            }
-            else if (board[i][j] == 0) {
-                b++;
-                move = { i + 1, j + 1 };
-            }
-        }
-        if (a == win and b == 1) {
-            win_move = move;
-            break;
-        }
-    }
-    int c = 0;
-    int d = 0;
-    for (int j = 0; j < max_x; j++) {
-        c = 0;
-        d = 0;
-        for (int i = 0; i < max_y; i++) {
-            if (board[i][j] == player) {
-                c++;
-            }
-            else if (board[i][j] == 0) {
-                d++;
-                move = { i + 1, j + 1 };
-            }
-        }
-        if (c == win and d == 1) {
-            win_move = move;
-            break;
-        }
-    }
-    int e = 0;
-    int f = 0;
-    int g = 0;
-    int h = 0;
-    for (int k = 0; k < max_y; k++) {
-        if (board[k][k] == player) {
-                e++;
-            }
-        else if (board[k][k] == 0) {
-                f++;
-                move = { k + 1, k + 1 };
-            }
-        }
-    if (e == win and f == 1) {
-            win_move = move;
-        }
-    for (int l = 0; l < max_y; l++) {
-        if (board[l][std_x-l] == player) {
-            g++;
-        }
-        else if (board[l][std_x -l] == 0) {
-            h++;
-            move = { l + 1, std_x-l + 1 };
-        }
-    }
-    if (g == win and h == 1) {
-        win_move = move;
-    }
-    return win_move;
-}
 bool board_full(vector<vector<int>> board) {
     int max_y = board.size();
     int max_x = board[0].size();
@@ -223,26 +147,22 @@ bool board_full(vector<vector<int>> board) {
         return false;
     }
 }
-
 int minimax(vector<vector<int>> board, int player, int depth) {
     int opponent = 0;
     vector<vector<int>> legal_moves (9, vector<int> (2,0));
-    vector<vector<int>> new_board;
-    vector<int> scores;
-    int score = 0;
-    array<int, 2> move = { 0 };
+    vector<vector<int>> next_board;
     int max_x = board[0].size();
     int max_y = board.size();
-    if (get_winner(board) == 1) {
-        return +10 - depth;
+    if (get_winner(board) == 2) {
+        return 10-depth;
     }
-    else if (get_winner(board) == 2) {
-        return depth - 10;
+    else if (get_winner(board) == 1) {
+        return -10+depth;
     }
     else if (board_full(board)) {
         return 0;
     }
-    depth++; // prioritize faster games
+    depth++; // prioritize games with lower depth
     int a = 0;
     for (int i = 0; i < max_y; i++) {
         for (int j = 0; j < max_x; j++) {
@@ -251,92 +171,65 @@ int minimax(vector<vector<int>> board, int player, int depth) {
                 legal_moves[a][1] = j+1;
                 a++;
             }
+            else { 
+                continue;
+            }
         }
     }
+    vector<int> scores(a,0);
     for (int k = 0; k < a; k++) {
-        move[0] = legal_moves[k][0]; // move one legalmove after the other into array
-        move[1] = legal_moves[k][1];
-        new_board = make_move(board, move, player);
+        next_board = make_move(board, legal_moves[k], player); //get new board for k
         if (player == 1) { // change active player for further calc
             opponent = 2;
         }
         else if (player == 2) {
             opponent = 1;
         }
-        score = minimax(new_board, opponent, depth);
-        scores.push_back(score); // add score 
-    }
-    if (player == 1) {
-        return *max_element(begin(scores), end(scores)); //return max score
-    }
-    else if (player == 2) {
-        return *min_element(begin(scores), end(scores)); //return min score
-    }
-}
-array<int, 2> move_KI(vector<vector<int>> board) {
-    array<int, 2> input = { 0 };
-    int max_y = board.size();
-    int max_x = board[0].size();
-    array<int, 2> default_move = { max_y + 1, max_x + 1 };
-    while (true) {
-        if (find_winningmove(board,1) != default_move) {
-            input = find_winningmove(board,1);      //search for a winning move for itself
-            break;
-        }
-        else if (find_winningmove(board, 2) != default_move) {
-            input = find_winningmove(board, 2);     // defeat loss
-            break;
-        }
-        else {
-            input[0] = rand() % max_y + 1; // random move by KI
-            input[1] = rand() % max_x + 1;
-            if (move_legal(input, board)) { // only use random move if legal
-                break;
-            }
-            else {
-                continue;
-            }
-        }
+        scores[k] = minimax(next_board, opponent, depth); //recursion
     }
 
-    return input;
+    if (player == 2) {
+     
+        return *max_element(scores.begin(), scores.end()); //return max score
+    }
+    else if (player == 1) {
+        
+        return *min_element(scores.begin(), scores.end()); //return min score
+    }
 }
-array<int, 2> minmax_move(vector<vector<int>> board) {
+vector<int> minmax_move(vector<vector<int>> board) {
     int max_y = board.size();
     int max_x = board[0].size();
     vector<vector<int>> legal_moves(9, vector<int>(2, 0));
-    vector<vector<int>> new_board;
-    array<int, 9> score_moves = { 0 };
-    array<int, 2> move = { 0 };
-    array<int, 2> best_move = { 0 };
+    vector<vector<int>> next_board;
+    vector<int> best_move(2,0);
     int a = 0;
     int index = 0;
     for (int i = 0; i < max_y; i++) {
         for (int j = 0; j < max_x; j++) {
             if (board[i][j] == 0) {
-                legal_moves[a][0] = i + 1;
+                legal_moves[a][0] = i + 1; // get all legal moves
                 legal_moves[a][1] = j + 1;
                 a++;
             }
         }
     }
+    vector<int> score_moves(a,0);
     for (int k = 0; k < a; k++) {
-        move[0] = legal_moves[k][0];
-        move[1] = legal_moves[k][1];
-        new_board = make_move(board, move, 1);
-        score_moves[k] = minimax(new_board, 2, 1); // same as the minimax function but connect the scores to the moves via index
+        next_board = make_move(board, legal_moves[k], 2); // set new board for AI, player2!
+        score_moves[k] = minimax(next_board, 1, 1); // same as the minimax function but connect the scores to the moves via index
     }
-    index = max_element(score_moves.begin(), score_moves.end()) - score_moves.begin(); // find highest score
+    index = max_element(score_moves.begin(), score_moves.end()) - score_moves.begin(); // find highest score index
     best_move[0] = legal_moves[index][0]; // use move of highest score
     best_move[1] = legal_moves[index][1];
     return best_move;
 }
-array<int, 2> getmove(string player, vector<vector<int>> board) {
-    array<int, 2> playerinput;
+vector<int> getmove(string player, vector<vector<int>> board) {
+    vector<int> playerinput (2);
     if (player == "AI1336") {
         cout << "It's AI's move." << endl;
         Sleep(500);
-        playerinput = minmax_move(board);
+        playerinput = minmax_move(board); //AI is player2!
         
     }
     else {
@@ -362,7 +255,7 @@ int main()
         vector<vector<int>> board1 = new_board(size);
         vector<vector<int>> board2;
         // Get Player Names
-        array<int, 2> move_coords; // used for temp. user move input
+        vector<int> move_coords(2); // used for temp. user move input
         string player1;
         string player2;
         string active_player;
@@ -377,7 +270,7 @@ int main()
             if (choice == 'y') {
                 cout << endl << "What's your name? ";
                 getline(cin, player1);
-                player2 = "AI1336";
+                player2 = "AI1336"; // set AI as Player 2
                 system("cls");
                 break;
             }
@@ -409,7 +302,7 @@ int main()
                 active_player = player2;
             }
 
-            //Get Move fom Player
+            //Get Move fom Player or AI
             while (true) {
                 move_coords = getmove(active_player, board1);
 
@@ -425,7 +318,6 @@ int main()
 
 
             }
-            //cout << "Legal Move x: " << move_coords[1] << " y: " << move_coords[0] << endl;
             // Execute Move
             board2 = make_move(board1, move_coords, playernumber);
             system("cls");

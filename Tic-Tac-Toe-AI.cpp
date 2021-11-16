@@ -88,8 +88,9 @@ vector<vector<int>> make_move(vector<vector<int>> old_board, vector <int> move, 
         }
         else {
             new_board[y][x] = playervar;
+            return new_board;
         }
-        return new_board;
+        
     }
     catch (const invalid_argument& error_) {
         cout << "Caught exception: " << error_.what() << endl;
@@ -149,11 +150,11 @@ bool board_full(vector<vector<int>> board) {
 }
 int minimax(vector<vector<int>> board, int player, int depth) {
     int opponent = 0;
-    vector<vector<int>> legal_moves (9, vector<int> (2,0));
-    vector<vector<int>> next_board;
-    vector<int> scores;
     int max_x = board[0].size();
     int max_y = board.size();
+    vector<vector<int>> legal_moves (max_x*max_y, vector<int> (2,0));
+    vector<vector<int>> next_board;
+    vector<int> scores;
     if (get_winner(board) == 2) {
         return 10-depth;
     }
@@ -198,9 +199,8 @@ int minimax(vector<vector<int>> board, int player, int depth) {
 vector<int> minmax_move(vector<vector<int>> board) {
     int max_y = board.size();
     int max_x = board[0].size();
-    vector<vector<int>> legal_moves(9, vector<int>(2, 0));
+    vector<vector<int>> legal_moves(max_x*max_y, vector<int>(2, 0));
     vector<vector<int>> next_board;
-    vector<int> best_move(2,0);
     int a = 0;
     int index = 0;
     for (int i = 0; i < max_y; i++) {
@@ -218,27 +218,27 @@ vector<int> minmax_move(vector<vector<int>> board) {
         score_moves[k] = minimax(next_board, 1, 1); // same as the minimax function but connect the scores to the moves via index
     }
     index = max_element(score_moves.begin(), score_moves.end()) - score_moves.begin(); // find highest score index
-    best_move[0] = legal_moves[index][0]; // use move of highest score
-    best_move[1] = legal_moves[index][1];
-    return best_move;
+    return legal_moves[index]; // use move of highest score  
 }
 vector<int> getmove(string player, vector<vector<int>> board) {
     vector<int> playerinput (2);
     if (player == "AI1336") {
         cout << "It's AI's move." << endl;
         Sleep(500);
-        playerinput = minmax_move(board); //AI is player2!
+        return minmax_move(board); //AI is player2!
         
     }
     else {
         cout << "It's " << player << "'s move." << endl;
         cout << "What's your moves x coordinate? ";
         cin >> playerinput[1];
+        cin.ignore(); // ignore /n
         cout << endl << "What's your moves y coordinate? ";
         cin >> playerinput[0];
+        cin.ignore(); // ignore /n
         cout << endl;
+        return playerinput;
     }
-    return playerinput;
 
 }
 
@@ -249,7 +249,7 @@ int main()
         int size = 0;
         cout << "What should the size of the board be? (whole number) ";
         cin >> size;
-        getchar(); // get /n
+        cin.ignore(); // get /n
         vector<vector<int>> board1 = new_board(size);
         vector<vector<int>> board2;
         // Get Player Names
@@ -264,7 +264,7 @@ int main()
         while (true) {
             cout << endl << "Do you want to play alone? (y/n) ";
             cin >> choice;
-            getchar(); // get /n
+            cin.ignore(); // ignore /n
             if (choice == 'y') {
                 cout << endl << "What's your name? ";
                 getline(cin, player1);
@@ -338,7 +338,7 @@ int main()
                 cout << player1 << " has won the game!" << endl;
                 cout << "Replay? (y/n) ";
                 cin >> replay;
-                getchar(); // get /n
+                cin.ignore(); // ignore /n
                 if (replay == 'y') {
                     board1 = new_board(size);
                 }
@@ -351,7 +351,7 @@ int main()
                 cout << player2 << " has won the game!" << endl;
                 cout << "Replay? (y/n) ";
                 cin >> replay;
-                getchar(); // get /n
+                cin.ignore(); // ignore /n
                 if (replay == 'y') {
                     board1 = new_board(size);
                 }
@@ -363,7 +363,7 @@ int main()
                 cout << "It's a draw!" << endl;
                 cout << "Replay? (y/n) ";
                 cin >> replay;
-                getchar(); // get /n
+                cin.ignore(); // ignore /n
                 if (replay == 'y') {
                     board1 = new_board(size);
                 }

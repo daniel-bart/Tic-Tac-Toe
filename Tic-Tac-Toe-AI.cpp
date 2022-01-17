@@ -11,7 +11,7 @@ vector<vector<int>> new_board(int size) {
     vector<vector<int>> empty(size, vector<int>(size, 0)); // 
     return empty;
 };
-void render(vector<vector<int>>board) {
+void render(vector<vector<int>> &board) {
     int max_y = board.size();
     int max_x = board[0].size();
     for (int i = 0; i < max_y; i++) {
@@ -55,7 +55,7 @@ void render(vector<vector<int>>board) {
         }
     }
 }
-bool move_legal(vector <int> move, vector<vector<int>> board) {
+bool move_legal(vector <int> &move, vector<vector<int>> &board) {
     int y = move[0] - 1;
     int x = move[1] - 1;
     if (y >= board.size() or x >= board[0].size() or y < 0 or x < 0 or board[y][x] == 1 or board[y][x] == 2) {
@@ -65,7 +65,7 @@ bool move_legal(vector <int> move, vector<vector<int>> board) {
         return true;
     }
 }
-vector<vector<int>> make_move(vector<vector<int>> old_board, vector <int> move, int player) {
+vector<vector<int>> make_move(vector<vector<int>> &old_board, vector <int> &move, int player) {
     int y = move[0] - 1;
     int x = move[1] - 1;
     vector<vector<int>> new_board = old_board;
@@ -90,14 +90,14 @@ vector<vector<int>> make_move(vector<vector<int>> old_board, vector <int> move, 
             new_board[y][x] = playervar;
             return new_board;
         }
-        
+
     }
     catch (const invalid_argument& error_) {
         cout << "Caught exception: " << error_.what() << endl;
         exit(EXIT_FAILURE);
     }
 }
-int get_winner(vector<vector<int>> board) {
+int get_winner(vector<vector<int>> &board) {
     int winner = 0;
     int max_x = board[0].size();
     int max_y = board.size();
@@ -130,7 +130,7 @@ int get_winner(vector<vector<int>> board) {
     }
     return winner;
 }
-bool board_full(vector<vector<int>> board) {
+bool board_full(vector<vector<int>> &board) {
     int max_y = board.size();
     int max_x = board[0].size();
     int sum = 0;
@@ -148,18 +148,18 @@ bool board_full(vector<vector<int>> board) {
         return false;
     }
 }
-int minimax(vector<vector<int>> board, int player, int depth) {
+int minimax(vector<vector<int>> &board, int player, int depth) {
     int opponent = 0;
     int max_x = board[0].size();
     int max_y = board.size();
-    vector<vector<int>> legal_moves (max_x*max_y, vector<int> (2,0));
+    vector<vector<int>> legal_moves(max_x * max_y, vector<int>(2, 0));
     vector<vector<int>> next_board;
     vector<int> scores;
     if (get_winner(board) == 2) {
-        return 10-depth;
+        return 10 - depth;
     }
     else if (get_winner(board) == 1) {
-        return -10+depth;
+        return -10 + depth;
     }
     else if (board_full(board)) {
         return 0;
@@ -169,13 +169,13 @@ int minimax(vector<vector<int>> board, int player, int depth) {
     for (int i = 0; i < max_y; i++) {
         for (int j = 0; j < max_x; j++) {
             if (board[i][j] == 0) {
-                legal_moves[a][0] = i+1; // safe all possible moves in 2d vector
-                legal_moves[a][1] = j+1;
+                legal_moves[a][0] = i + 1; // safe all possible moves in 2d vector
+                legal_moves[a][1] = j + 1;
                 a++;
             }
         }
     }
-    
+
     for (int k = 0; k < a; k++) {
         next_board = make_move(board, legal_moves[k], player); //get new board for k
         if (player == 1) { // change active player for further calc
@@ -188,18 +188,18 @@ int minimax(vector<vector<int>> board, int player, int depth) {
     }
 
     if (player == 2) {
-     
+
         return *max_element(scores.begin(), scores.end()); //return max score
     }
     else if (player == 1) {
-        
+
         return *min_element(scores.begin(), scores.end()); //return min score
     }
 }
-vector<int> minmax_move(vector<vector<int>> board) {
+vector<int> minmax_move(vector<vector<int>> &board) {
     int max_y = board.size();
     int max_x = board[0].size();
-    vector<vector<int>> legal_moves(max_x*max_y, vector<int>(2, 0));
+    vector<vector<int>> legal_moves(max_x * max_y, vector<int>(2, 0));
     vector<vector<int>> next_board;
     int a = 0;
     int index = 0;
@@ -212,7 +212,7 @@ vector<int> minmax_move(vector<vector<int>> board) {
             }
         }
     }
-    vector<int> score_moves(a,0);
+    vector<int> score_moves(a, 0);
     for (int k = 0; k < a; k++) {
         next_board = make_move(board, legal_moves[k], 2); // set new board for AI, player2!
         score_moves[k] = minimax(next_board, 1, 1); // same as the minimax function but connect the scores to the moves via index
@@ -220,13 +220,13 @@ vector<int> minmax_move(vector<vector<int>> board) {
     index = max_element(score_moves.begin(), score_moves.end()) - score_moves.begin(); // find highest score index
     return legal_moves[index]; // use move of highest score  
 }
-vector<int> getmove(string player, vector<vector<int>> board) {
-    vector<int> playerinput (2);
+vector<int> getmove(string &player, vector<vector<int>> &board) {
+    vector<int> playerinput(2);
     if (player == "AI1336") {
         cout << "It's AI's move." << endl;
         Sleep(500);
         return minmax_move(board); //AI is player2!
-        
+
     }
     else {
         cout << "It's " << player << "'s move." << endl;
@@ -381,4 +381,4 @@ int main()
     //cout << endl << "Run without Problems";
     return 0;
 }
-//May add Call by Reference for board functions (render, full, etc)
+
